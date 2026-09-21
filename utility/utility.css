@@ -1,0 +1,183 @@
+.quest-dialog-backdrop { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, .65); }
+.quest-dialog { width: min(100%, 320px); display: flex; flex-direction: column; gap: 10px; padding: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 16px 40px rgba(0, 0, 0, .5); }
+.quest-dialog h3, .quest-dialog p { margin: 0; }.quest-dialog h3 { font-size: 15px; }.quest-dialog p { color: var(--muted); font-size: 11px; }
+.quest-dialog label { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 11px; }.quest-dialog input, .quest-dialog select { width: 100%; padding: 7px; color: var(--text); background: #12141a; border: 1px solid var(--border); border-radius: 5px; font: inherit; }.quest-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.utility-main {
+  padding: 16px;
+  height: calc(100% - 40px);
+  overflow-y: auto;
+}
+
+.widget-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.widget-control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.widget-control-btn:hover {
+  border-color: var(--border);
+  background: #22252e;
+}
+
+.widget-control-btn.close:hover {
+  background: #e81123;
+  border-color: #e81123;
+  color: #fff;
+}
+
+.widget-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.widget-field label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.widget-field input {
+  width: 100%;
+  background: #12141a;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: "Consolas", monospace;
+}
+
+.widget-hint-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.widget-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.widget-add-row input {
+  flex: 1;
+  background: #12141a;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.widget-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.widget-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.widget-list li span {
+  flex: 1;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.widget-list li.done span {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.widget-list li button {
+  border: none;
+  background: transparent;
+  color: #ff8080;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.widget-notepad-textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  background: #12141a;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.questlog-app { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; }
+.quest-header, .quest-tabs, .quest-controls, .questline-header, .quest-row { display: flex; align-items: center; }
+.quest-header { justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.icon-btn, .quest-tabs button, .quest-controls button, .questline-header { border: 1px solid transparent; background: transparent; color: var(--text); cursor: pointer; }
+.icon-btn { width: 26px; height: 26px; border-radius: 5px; }
+.icon-btn:hover, .quest-tabs button:hover, .quest-controls button:hover { background: #2a2e3a; }
+.quest-tabs { gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.quest-tabs button { white-space: nowrap; border-radius: 5px; padding: 4px 7px; font-size: 11px; }
+.quest-tabs button.active { background: #2a2e3a; border-color: var(--border); }
+.quest-tabs .add-character { font-size: 16px; padding: 1px 7px; }
+.quest-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 7px; background: var(--panel); border: 1px solid var(--border); font-size: 10px; }
+.quest-settings strong { grid-column: 1 / -1; color: var(--muted); }
+.quest-settings label { cursor: pointer; }
+.hidden { display: none !important; }
+.quest-controls { flex-wrap: wrap; gap: 5px; }
+.quest-controls label { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; }
+.quest-controls input { width: 48px; background: #12141a; border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 4px; text-align: center; }
+.quest-controls > input { flex: 1; min-width: 120px; text-align: left; }
+.quest-controls button { border-color: var(--border); border-radius: 4px; width: 22px; height: 23px; }
+.quest-list { flex: 1; min-height: 0; overflow-y: auto; border-top: 1px solid var(--border); }
+.questline-header { width: 100%; gap: 6px; padding: 7px 3px; text-align: left; border-bottom: 1px solid var(--border); font-size: 11px; }
+.questline-header strong { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.questline-header small { color: var(--muted); }
+.questline-body { padding: 2px 0 5px 9px; }
+.quest-row { align-items: flex-start; gap: 5px; padding: 5px 2px; border-radius: 3px; }
+.quest-row:hover { background: #242833; }
+.quest-info { flex: 1; min-width: 0; }
+.quest-info > a { color: var(--text); font-size: 11px; font-weight: 600; text-decoration: none; }
+.quest-info > a:hover { text-decoration: underline; }
+.quest-level { display: inline-block; width: 24px; color: var(--muted); font: 10px Consolas, monospace; }
+.quest-info div { padding-left: 24px; font-size: 10px; }
+.quest-info small { display: block; padding-left: 24px; color: var(--muted); font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.quest-badge { border: 1px solid; border-radius: 3px; padding: 1px 3px; font-size: 9px; }
+.quest-mandatory { color: #ff8888; border-color: #a44; background: #5a2020; }.quest-prioritize { color: #86df9a; border-color: #397c4a; background: #193c24; }.quest-on-the-go { color: #8bbcff; border-color: #37649c; background: #1b3455; }.quest-wait { color: #f4d276; border-color: #846c2a; background: #4d401b; }.quest-skip { color: #aaa; border-color: #555; background: #333; }.quest-special { color: #d59bff; border-color: #754c99; background: #3a2050; }
+.quest-actions { display: flex; gap: 2px; }
+.quest-actions button { width: 18px; height: 18px; padding: 0; border: 1px solid var(--border); border-radius: 3px; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; }
+.quest-actions button:hover { color: var(--text); background: #303542; }.quest-row.completed { opacity: .5; }.quest-row.completed a { text-decoration: line-through; }.quest-row.hidden-quest { opacity: .4; }.quest-empty { padding: 32px 10px; text-align: center; color: var(--muted); font-size: 12px; }

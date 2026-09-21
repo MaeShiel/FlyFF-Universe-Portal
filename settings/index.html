@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file:; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+<title>Settings - Flyff U Portal</title>
+<link rel="icon" href="../assets/app-icon.png" />
+<link rel="stylesheet" href="../home/style.css" />
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-drag">
+      <img class="titlebar-logo" src="../assets/app-icon.png" alt="" />
+      <span class="titlebar-text">Flyff U Portal Settings</span>
+    </div>
+    <div class="titlebar-controls">
+      <button id="minimizeBtn" class="titlebar-btn" title="Minimize" aria-label="Minimize">&#8722;</button>
+      <button id="maximizeBtn" class="titlebar-btn" title="Maximize / Restore" aria-label="Maximize / Restore">&#9633;</button>
+      <button id="closeBtn" class="titlebar-btn close" title="Close" aria-label="Close">&#10005;</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="settings-tabs" role="tablist">
+      <button id="tabBtnKeybinds" class="settings-tab active" data-tab="keybinds" role="tab" aria-selected="true">Keybinds</button>
+      <button id="tabBtnExtensions" class="settings-tab" data-tab="extensions" role="tab" aria-selected="false">Extensions</button>
+    </div>
+
+    <section id="panelKeybinds" class="settings-panel keybinds-section" role="tabpanel">
+      <h2>Keybinds</h2>
+      <p class="hint">Tab shortcuts, active while a Game Hub window is focused - just like a normal browser tab.</p>
+      <ul id="keybindsList" class="keybinds-list"></ul>
+      <button id="resetKeybindsBtn" class="secondary-btn">Reset to Defaults</button>
+    </section>
+
+    <section id="panelExtensions" class="settings-panel extensions-section hidden" role="tabpanel">
+      <h2>Extensions</h2>
+      <p class="hint">Loaded into every account window (unpacked/developer-mode extensions).</p>
+      <button id="addExtensionBtn" class="secondary-btn">Load Extension...</button>
+      <ul id="extensionsList" class="extensions-list"></ul>
+    </section>
+  </main>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.flyffu.portal
+productName: Flyff U Portal
+files:
+  - filter:
+      - src/**/*
+      - home/**/*
+      - gamehub/**/*
+      - settings/**/*
+      - utility/**/*
+      - assets/**/*
+      - package.json
+win:
+  target: nsis
+  icon: assets/app-icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  shortcutName: Flyff U Portal
+electronVersion: 31.7.7

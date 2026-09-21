@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+<title>Widget</title>
+<link rel="stylesheet" href="../home/style.css" />
+<link rel="stylesheet" href="utility.css" />
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-drag">
+      <span class="titlebar-text" id="widgetTitle">Widget</span>
+    </div>
+    <div class="widget-window-controls">
+      <button id="widgetMinimizeBtn" class="widget-control-btn" title="Minimize" aria-label="Minimize">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+      <button id="widgetCloseBtn" class="widget-control-btn close" title="Close" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main class="utility-main">
+    <div id="widgetBody" class="widget-body"></div>
+  </main>
+
+  <script src="quest-data.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

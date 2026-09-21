@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+<title>Flyff U Portal</title>
+<link rel="stylesheet" href="gamehub.css" />
+</head>
+<body>
+  <div class="hub-titlebar">
+    <div class="hub-tabstrip" id="tabStrip"></div>
+    <div class="hub-drag-spacer"></div>
+    <div class="hub-window-controls">
+      <button id="minimizeBtn" class="hub-titlebar-btn" title="Minimize" aria-label="Minimize">&#8722;</button>
+      <button id="maximizeBtn" class="hub-titlebar-btn" title="Maximize / Restore" aria-label="Maximize / Restore">&#9633;</button>
+      <button id="closeBtn" class="hub-titlebar-btn close" title="Close" aria-label="Close">&#10005;</button>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

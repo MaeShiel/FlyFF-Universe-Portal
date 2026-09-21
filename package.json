@@ -1,0 +1,41 @@
+{
+  "name": "flyff-u-portal",
+  "version": "1.0.0",
+  "description": "A dedicated desktop portal for Flyff Universe with multi-account launcher and extension support.",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.flyffu.portal",
+    "productName": "Flyff U Portal",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "home/**/*",
+      "gamehub/**/*",
+      "settings/**/*",
+      "utility/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/app-icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "shortcutName": "Flyff U Portal"
+    }
+  }
+}
