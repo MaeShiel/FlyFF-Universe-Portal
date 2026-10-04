@@ -232,7 +232,7 @@ function renderNewsPanels() {
   newsPanelsEl.innerHTML = '';
   const tab = NEWS_TABS.find((t) => t.key === activeNewsTab);
   const panel = document.createElement('div');
-  panel.className = 'news-panel';
+  panel.className = `news-panel news-panel-${activeNewsTab}`;
 
   const header = document.createElement('div');
   header.className = 'news-panel-header';
