@@ -13,6 +13,8 @@
       <img class="titlebar-logo" src="../assets/app-icon.png" alt="" />
       <span class="titlebar-text">Flyff U Portal</span>
       <button id="settingsBtn" class="titlebar-icon-btn" title="Settings">&#9881;</button>
+      <div id="profileTabs" class="profile-tabs"></div>
+      <button id="addProfileBtn" class="titlebar-icon-btn profile-tab-add" title="Add Profile" aria-label="Add Profile">+</button>
     </div>
     <div class="titlebar-controls">
       <button id="addAccountBtn" class="primary-btn titlebar-action">+ Add Account</button>
@@ -102,6 +104,33 @@
         </label>
         <div class="modal-actions">
           <button type="button" id="cancelModalBtn" class="secondary-btn">Cancel</button>
+          <button type="submit" class="primary-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal hidden">
+    <div class="modal-content profile-modal-content">
+      <h3 id="profileModalTitle">Add Profile</h3>
+      <form id="profileForm">
+        <input type="hidden" id="profileId" />
+        <label>Profile Name
+          <input type="text" id="profileName" placeholder="e.g. Dailies Hunting" required />
+        </label>
+        <label>Icon
+          <input type="hidden" id="profileIcon" value="jobs/vagrant.png" />
+          <button type="button" id="pickProfileIconBtn" class="icon-picker-trigger">
+            <img id="pickProfileIconPreview" src="../assets/icons/jobs/vagrant.png" alt="" />
+            <span>Choose Icon...</span>
+          </button>
+        </label>
+        <div class="profile-accounts-label"><span>Accounts opened by this profile</span><span>Split</span></div>
+        <div id="profileAccountsList" class="profile-accounts-list"></div>
+        <p class="profile-split-hint">Turn on <strong>Split</strong> for two or more accounts to show them side by side in one window, where hovering a character lets you control it without clicking. The rest open as normal tabs.</p>
+        <div class="modal-actions">
+          <button type="button" id="deleteProfileBtn" class="danger-btn profile-delete-btn">Delete</button>
+          <button type="button" id="cancelProfileModalBtn" class="secondary-btn">Cancel</button>
           <button type="submit" class="primary-btn">Save</button>
         </div>
       </form>

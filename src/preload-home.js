@@ -6,6 +6,11 @@ contextBridge.exposeInMainWorld('flyffAPI', {
   deleteAccount: (id) => ipcRenderer.invoke('accounts:delete', id),
   openAccount: (id) => ipcRenderer.invoke('accounts:open', id),
 
+  listProfiles: () => ipcRenderer.invoke('profiles:list'),
+  saveProfile: (profile) => ipcRenderer.invoke('profiles:save', profile),
+  deleteProfile: (id) => ipcRenderer.invoke('profiles:delete', id),
+  openProfile: (id) => ipcRenderer.invoke('profiles:open', id),
+
   fetchNews: () => ipcRenderer.invoke('news:fetch'),
   getVersion: () => ipcRenderer.invoke('app:getVersion'),
 

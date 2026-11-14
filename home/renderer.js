@@ -1,4 +1,5 @@
 const accountsGrid = document.getElementById('accountsGrid');
+let accountsCache = []; // last loaded account list, reused by the profile cards and dialog
 const accountModal = document.getElementById('accountModal');
 const accountForm = document.getElementById('accountForm');
 const modalTitle = document.getElementById('modalTitle');
@@ -43,6 +44,17 @@ const iconSearchInput = document.getElementById('iconSearchInput');
 const accIconInput = document.getElementById('accIcon');
 const pickIconPreview = document.getElementById('pickIconPreview');
 
+// The icon picker is shared by the account and profile dialogs; this points at whichever
+// hidden input + preview image opened it.
+let iconPickerTarget = { input: accIconInput, preview: pickIconPreview };
+
+function openIconPicker(input, preview) {
+  iconPickerTarget = { input, preview };
+  iconSearchInput.value = '';
+  renderIconGrid();
+  iconPickerModal.classList.remove('hidden');
+}
+
 function iconUrl(file) {
   return `../assets/icons/${file}`;
 }
@@ -69,14 +81,14 @@ function renderIconGrid(filter = '') {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.title = icon.name;
-      btn.classList.toggle('selected', accIconInput.value === icon.file);
+      btn.classList.toggle('selected', iconPickerTarget.input.value === icon.file);
       const img = document.createElement('img');
       img.src = iconUrl(icon.file);
       img.alt = icon.name;
       btn.appendChild(img);
       btn.addEventListener('click', () => {
-        accIconInput.value = icon.file;
-        pickIconPreview.src = iconUrl(icon.file);
+        iconPickerTarget.input.value = icon.file;
+        iconPickerTarget.preview.src = iconUrl(icon.file);
         iconPickerModal.classList.add('hidden');
       });
       grid.appendChild(btn);
@@ -86,16 +98,13 @@ function renderIconGrid(filter = '') {
   }
 }
 
-document.getElementById('pickIconBtn').addEventListener('click', () => {
-  iconSearchInput.value = '';
-  renderIconGrid();
-  iconPickerModal.classList.remove('hidden');
-});
+document.getElementById('pickIconBtn').addEventListener('click', () => openIconPicker(accIconInput, pickIconPreview));
 document.getElementById('closeIconPickerBtn').addEventListener('click', () => iconPickerModal.classList.add('hidden'));
 iconSearchInput.addEventListener('input', () => renderIconGrid(iconSearchInput.value));
 
 async function refreshAccounts() {
   const accounts = await window.flyffAPI.listAccounts();
+  accountsCache = accounts;
   accountsGrid.innerHTML = '';
   for (const acc of accounts) {
     const card = document.createElement('div');
@@ -126,7 +135,150 @@ async function refreshAccounts() {
     });
     accountsGrid.appendChild(card);
   }
+  // Profile cards show their accounts' names/icons, so redraw them whenever accounts change.
+  await refreshProfiles();
 }
+
+// ---- Launch profiles: a named set of accounts that all open together ----
+const profileTabs = document.getElementById('profileTabs');
+const profileModal = document.getElementById('profileModal');
+const profileForm = document.getElementById('profileForm');
+const profileModalTitle = document.getElementById('profileModalTitle');
+const profileIconInput = document.getElementById('profileIcon');
+const pickProfileIconPreview = document.getElementById('pickProfileIconPreview');
+const profileAccountsList = document.getElementById('profileAccountsList');
+
+// Profiles live in the top bar: one tab per profile. Click opens all of its accounts,
+// right-click opens the edit dialog (which also holds Delete).
+async function refreshProfiles() {
+  const profiles = await window.flyffAPI.listProfiles();
+  const accountsById = new Map(accountsCache.map((a) => [a.id, a]));
+  profileTabs.innerHTML = '';
+
+  for (const profile of profiles) {
+    const members = profile.accountIds.map((id) => accountsById.get(id)).filter(Boolean);
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'profile-tab';
+    tab.classList.toggle('empty', members.length === 0);
+    tab.title = (members.length > 0
+      ? `Open ${members.map((a) => a.name).join(', ')}`
+      : 'No accounts linked yet') + (profile.splitIds.length >= 2 ? `\nSplit: ${profile.splitIds.map((id) => accountsById.get(id)?.name).filter(Boolean).join(' + ')}` : '') + '\nRight-click to edit';
+    const tabIcon = document.createElement('img');
+    tabIcon.src = iconUrl(profile.icon || DEFAULT_ICON);
+    tabIcon.alt = '';
+    const tabLabel = document.createElement('span');
+    tabLabel.textContent = profile.name;
+    tab.append(tabIcon, tabLabel);
+    tab.addEventListener('click', async () => {
+      // A profile with nothing linked has nothing to open, so go straight to editing it.
+      if (members.length === 0) return openProfileModal(profile);
+      tab.disabled = true;
+      try {
+        await window.flyffAPI.openProfile(profile.id);
+      } finally {
+        tab.disabled = false;
+      }
+    });
+    tab.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+      openProfileModal(profile);
+    });
+    profileTabs.appendChild(tab);
+  }
+}
+
+function openProfileModal(profile) {
+  profileModalTitle.textContent = profile ? 'Edit Profile' : 'Add Profile';
+  document.getElementById('profileId').value = profile ? profile.id : '';
+  document.getElementById('profileName').value = profile ? profile.name : '';
+  const icon = (profile && profile.icon) || DEFAULT_ICON;
+  profileIconInput.value = icon;
+  pickProfileIconPreview.src = iconUrl(icon);
+
+  const selected = new Set(profile ? profile.accountIds : []);
+  profileAccountsList.innerHTML = '';
+  if (accountsCache.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'profile-accounts-empty';
+    empty.textContent = 'Add an account first, then link it to this profile.';
+    profileAccountsList.appendChild(empty);
+  }
+  const split = new Set(profile ? profile.splitIds : []);
+  for (const acc of accountsCache) {
+    const row = document.createElement('div');
+    row.className = 'profile-account-row';
+
+    const option = document.createElement('label');
+    option.className = 'profile-account-option';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'profile-account-link';
+    checkbox.value = acc.id;
+    checkbox.checked = selected.has(acc.id);
+    const img = document.createElement('img');
+    img.src = iconUrl(acc.icon || DEFAULT_ICON);
+    img.alt = '';
+    const name = document.createElement('span');
+    name.textContent = acc.name;
+    option.append(checkbox, img, name);
+
+    // Per-account split toggle; only meaningful for accounts the profile actually opens.
+    const splitToggle = document.createElement('label');
+    splitToggle.className = 'profile-split-toggle';
+    splitToggle.title = 'Show this account side by side with the other Split accounts';
+    const splitBox = document.createElement('input');
+    splitBox.type = 'checkbox';
+    splitBox.className = 'profile-account-split';
+    splitBox.value = acc.id;
+    splitBox.checked = checkbox.checked && split.has(acc.id);
+    splitBox.disabled = !checkbox.checked;
+    splitToggle.appendChild(splitBox);
+    checkbox.addEventListener('change', () => {
+      splitBox.disabled = !checkbox.checked;
+      if (!checkbox.checked) splitBox.checked = false;
+    });
+
+    row.append(option, splitToggle);
+    profileAccountsList.appendChild(row);
+  }
+  deleteProfileBtn.classList.toggle('hidden', !profile);
+  profileModal.classList.remove('hidden');
+  document.getElementById('profileName').focus();
+}
+
+document.getElementById('addProfileBtn').addEventListener('click', () => openProfileModal(null));
+
+const deleteProfileBtn = document.getElementById('deleteProfileBtn');
+deleteProfileBtn.addEventListener('click', async () => {
+  const id = document.getElementById('profileId').value;
+  const name = document.getElementById('profileName').value.trim();
+  if (!id || !confirm(`Delete profile "${name}"? The accounts themselves are kept.`)) return;
+  await window.flyffAPI.deleteProfile(id);
+  profileModal.classList.add('hidden');
+  refreshProfiles();
+});
+document.getElementById('cancelProfileModalBtn').addEventListener('click', () => profileModal.classList.add('hidden'));
+document.getElementById('pickProfileIconBtn').addEventListener('click', () => openIconPicker(profileIconInput, pickProfileIconPreview));
+
+profileForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const accountIds = [...profileAccountsList.querySelectorAll('.profile-account-link:checked')].map((c) => c.value);
+  const splitIds = [...profileAccountsList.querySelectorAll('.profile-account-split:checked')].map((c) => c.value);
+  if (splitIds.length === 1) {
+    alert('Split needs at least two accounts. Turn on Split for one more account, or turn it off.');
+    return;
+  }
+  await window.flyffAPI.saveProfile({
+    id: document.getElementById('profileId').value || undefined,
+    name: document.getElementById('profileName').value.trim(),
+    icon: profileIconInput.value || DEFAULT_ICON,
+    accountIds,
+    splitIds,
+  });
+  profileModal.classList.add('hidden');
+  refreshProfiles();
+});
 
 function openModalForAdd() {
   modalTitle.textContent = 'Add Account';

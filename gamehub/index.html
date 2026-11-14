@@ -11,11 +11,15 @@
     <div class="hub-tabstrip" id="tabStrip"></div>
     <div class="hub-drag-spacer"></div>
     <div class="hub-window-controls">
+      <button id="splitBtn" class="hub-titlebar-btn hub-split-btn" title="Split view: show all tabs side by side" aria-label="Toggle split view" aria-pressed="false">
+        <span class="hub-split-icon" aria-hidden="true"></span>
+      </button>
       <button id="minimizeBtn" class="hub-titlebar-btn" title="Minimize" aria-label="Minimize">&#8722;</button>
       <button id="maximizeBtn" class="hub-titlebar-btn" title="Maximize / Restore" aria-label="Maximize / Restore">&#9633;</button>
       <button id="closeBtn" class="hub-titlebar-btn close" title="Close" aria-label="Close">&#10005;</button>
     </div>
   </div>
+  <div id="splitDividers"></div>
   <script src="renderer.js"></script>
 </body>
 </html>

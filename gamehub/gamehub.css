@@ -32,7 +32,7 @@ html, body {
   display: flex;
   align-items: stretch;
   flex: none;
-  max-width: calc(100% - 130px);
+  max-width: calc(100% - 172px);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -130,4 +130,55 @@ html, body {
 .hub-titlebar-btn.close:hover {
   background: #c0392b;
   color: white;
+}
+
+/* Split view toggle: a little two-pane glyph drawn with borders so it does not depend on a font. */
+.hub-split-icon {
+  display: inline-block;
+  width: 16px;
+  height: 12px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  background: linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  vertical-align: middle;
+}
+
+.hub-split-btn.active {
+  color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+/* Split view dividers: fixed strips sitting in the gaps between game tiles. */
+.hub-divider {
+  position: fixed;
+  background: #1d2029;
+  transition: background 0.1s ease;
+}
+
+.hub-divider-col { cursor: col-resize; }
+.hub-divider-row { cursor: row-resize; }
+
+.hub-divider:hover,
+.hub-divider.dragging {
+  background: var(--accent);
+}
+
+body.resizing-col, body.resizing-col * { cursor: col-resize !important; }
+body.resizing-row, body.resizing-row * { cursor: row-resize !important; }
+
+/* Tabs that belong to the split group get a small two-pane marker before their name. */
+.hub-tab.in-split::before {
+  content: '';
+  flex: none;
+  width: 11px;
+  height: 9px;
+  border: 1.5px solid var(--accent);
+  border-radius: 2px;
+  background: linear-gradient(var(--accent), var(--accent)) center / 1.5px 100% no-repeat;
+}
+
+.hub-split-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
 }
