@@ -327,33 +327,58 @@ function sendSplitDividers(state, dividers) {
   if (!state.window.isDestroyed()) state.window.webContents.send('hub:splitDividers', dividers);
 }
 
+// Full game area below the tab bar.
+function fullViewBounds(state) {
+  const [width, height] = state.window.getContentSize();
+  return { x: 0, y: TAB_BAR_HEIGHT, width, height: Math.max(0, height - TAB_BAR_HEIGHT) };
+}
+
+// Tabs that are not on screen stay attached to the window at the full game-area size. A game
+// view that is detached, or placed entirely outside the window, has no size (0x0), and Flyff
+// started in a zero-size viewport lays its UI out for that: the login screen and in-game windows
+// end up squashed into the top-left corner and mouse clicks land in the wrong place, even after
+// the tab is shown. So hidden views are slid almost fully off the left edge, leaving a 1px
+// sliver inside the window, and the visible views are stacked on top so that sliver is covered.
+function sizeHiddenViews(state) {
+  if (state.window.isDestroyed()) return;
+  const visible = new Set(visibleTabs(state));
+  const bounds = fullViewBounds(state);
+  const parked = { ...bounds, x: 1 - bounds.width };
+  for (const tab of state.tabs) {
+    if (!visible.has(tab)) tab.view.setBounds(parked);
+  }
+}
+
+// Keeps the on-screen views above the parked ones.
+function raiseVisibleViews(state) {
+  for (const tab of visibleTabs(state)) {
+    if (state.attached.has(tab.view)) state.window.setTopBrowserView(tab.view);
+  }
+}
+
 function layoutViews(state) {
   if (state.window.isDestroyed()) return;
+  sizeHiddenViews(state);
   const tabs = visibleTabs(state);
   if (tabs.length === 0) return;
   const [width, height] = state.window.getContentSize();
   if (!isSplitActive(state)) {
     tabs[0].view.setBounds({ x: 0, y: TAB_BAR_HEIGHT, width, height: Math.max(0, height - TAB_BAR_HEIGHT) });
+    raiseVisibleViews(state);
     sendSplitDividers(state, []);
     return;
   }
   const { tiles, dividers } = computeSplit(state, width, height);
   tabs.forEach((tab, i) => tab.view.setBounds(tiles[i]));
+  raiseVisibleViews(state);
   // The divider strips are drawn (and dragged) by the hub page, which shows through the gaps.
   sendSplitDividers(state, dividers);
 }
 
-// Attaches exactly the views that should be on screen (and detaches the rest), then lays them out.
+// Every tab's view stays attached; layoutViews decides which ones are placed on screen.
 function syncViews(state) {
   if (state.window.isDestroyed()) return;
-  const visible = visibleTabs(state);
-  const keep = new Set(visible.map((t) => t.view));
-  for (const view of [...state.attached]) {
-    if (keep.has(view)) continue;
-    try { state.window.removeBrowserView(view); } catch { /* view may not be attached */ }
-    state.attached.delete(view);
-  }
-  for (const tab of visible) {
+  for (const tab of state.tabs) {
     if (state.attached.has(tab.view)) continue;
     state.window.addBrowserView(tab.view);
     // Electron's native autoResize fights with our manual layoutViews bounds calc (it anchors
@@ -523,11 +548,26 @@ function whenShown(state, fn) {
 function attachTab(state, tab, { activate = true } = {}) {
   state.tabs.push(tab);
   accountHub.set(tab.accountId, state.window.webContents.id);
+  syncViews(state);
   if (activate) whenShown(state, () => setActiveTab(state, tab.accountId));
 }
 
+// Shuts a game view down for good. Removing a view from its window does not stop it: the game
+// keeps running and stays logged in, so reopening that account later started a second login
+// for the same account and Flyff answered with "Your account is already logged in".
+function destroyTabView(tab) {
+  const wc = tab.view.webContents;
+  if (!wc || wc.isDestroyed()) return;
+  try {
+    wc.close();
+  } catch (err) {
+    console.error(`Failed to close the game for "${tab.name}":`, err.message);
+  }
+}
+
 function closeTab(state, accountId) {
-  detachTab(state, accountId);
+  const tab = detachTab(state, accountId);
+  if (tab) destroyTabView(tab);
 }
 
 function reorderTab(state, accountId, targetIndex) {
@@ -614,9 +654,12 @@ function createGameHubWindow(position, { splitLayout = null, profileId = null } 
   // Coming back to the window (alt-tab, clicking its title bar) hands the keys to the active tile.
   win.on('focus', () => focusActiveSplitView(state));
   win.on('closed', () => {
+    // Closing the whole game window closes (and logs out) every game still in it.
     for (const tab of state.tabs) {
       accountHub.delete(tab.accountId);
+      destroyTabView(tab);
     }
+    state.tabs = [];
     hubWindows.delete(hubId);
   });
 
@@ -779,7 +822,17 @@ ipcMain.handle('accounts:delete', (_evt, id) => {
   return true;
 });
 
-ipcMain.handle('accounts:open', (_evt, id) => openAccountTab(id));
+// Open requests run one at a time. Opening awaits extension loading before the new tab is
+// registered, so two overlapping requests (a double-click, or a profile plus an account's own
+// Open button) could otherwise both create a game view for the same account and log it in twice.
+let openQueue = Promise.resolve();
+function queueOpen(fn) {
+  const run = openQueue.then(fn, fn);
+  openQueue = run.catch(() => {});
+  return run;
+}
+
+ipcMain.handle('accounts:open', (_evt, id) => queueOpen(() => openAccountTab(id)));
 
 // ---- IPC: launch profiles (open a saved set of accounts at once) ----
 ipcMain.handle('profiles:list', () => store.listProfiles());
@@ -791,7 +844,7 @@ ipcMain.handle('profiles:delete', (_evt, id) => {
   return true;
 });
 
-ipcMain.handle('profiles:open', (_evt, id) => openProfile(id));
+ipcMain.handle('profiles:open', (_evt, id) => queueOpen(() => openProfile(id)));
 
 // ---- IPC: extensions ----
 ipcMain.handle('extensions:list', () => store.listExtensions());
